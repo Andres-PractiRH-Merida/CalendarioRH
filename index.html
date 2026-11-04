@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Calendario RH · OXXO Plaza Mérida</title>
+<link rel="prefetch" href="calendario.html">
+<link rel="prefetch" href="data/eventos.json">
+<style>
+/* Portada: imagen 9:16 en pantallas verticales, 16:9 en horizontales */
+html,body{height:100%;margin:0}
+body{background:#c8001e;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+/* Pantalla completa: la imagen ocupa todo el alto/ancho; el relleno de los lados es la misma imagen difuminada */
+.portada{position:fixed;inset:0;overflow:hidden}
+.portada picture,.portada img{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* El fondo es una miniatura de unos cuantos píxeles que el navegador agranda y suaviza solo: no necesita filtro blur (más rápido en celulares) */
+.fondo{object-fit:cover}
+.frente{object-fit:contain}
+.entrar{position:absolute;left:50%;bottom:calc(5% + env(safe-area-inset-bottom));transform:translateX(-50%);display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 28px;border-radius:999px;background:#fff;color:#c8001e;border:3px solid #ffc709;font-weight:800;font-size:clamp(.95rem,2.4vmin,1.25rem);text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.25);white-space:nowrap;transition:background .15s,color .15s}
+.entrar:hover{background:#c8001e;color:#fff}
+.entrar:active{background:#9d0017;color:#fff}
+.entrar:focus-visible{outline:3px solid #201e1d;outline-offset:3px}
+</style>
+</head>
+<body>
+<main class="portada">
+  <picture aria-hidden="true">
+    <source media="(orientation: landscape)" srcset="assets/portada-16x9-fondo.webp">
+    <img class="fondo" src="assets/portada-9x16-fondo.webp" alt="" width="48" height="85">
+  </picture>
+  <picture>
+    <source media="(orientation: landscape)" srcset="assets/portada-16x9.webp">
+    <img class="frente" src="assets/portada-9x16.webp" alt="Calendario RH, OXXO Plaza Mérida, Recursos Humanos" width="941" height="1672" fetchpriority="high" decoding="async">
+  </picture>
+  <a class="entrar" href="calendario.html">Ver calendario</a>
+</main>
+</body>
+</html>
