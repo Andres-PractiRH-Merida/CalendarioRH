@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendario de eventos de RH · Plaza Mérida</title>
+<meta name="description" content="Calendario mensual de eventos de Recursos Humanos en Mérida, Yucatán.">
+<!-- Tipografía: Figtree (opcional; si no carga se usa la del sistema) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- La fuente carga sin bloquear la página: primero se ve con la tipografía del sistema y luego cambia -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap"></noscript>
+<style>
+/* ========== 1. Tokens (sistema Organic) ========== */
+:root{
+  /* Paleta alineada con la portada: rojo y amarillo OXXO sobre blanco */
+  --bg:#ffffff; --surface:#ffffff; --soft:#f6f4f1; --text:#2b2b2b; --muted:#5f5f5f; --line:#e6e3df;
+  --accent:#c8001e; --accent-600:#9d0017; --accent-700:#a30019; --accent-100:#fdecee;
+  --yellow:#ffc709;
+  --font-h:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-b:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --r:16px; --pill:999px;
+  --sh-sm:0 1px 4px rgba(0,0,0,.10); --sh-lg:0 18px 50px rgba(0,0,0,.18);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.5 var(--font-b);overflow-x:hidden}
+a{color:var(--accent-700)} a:hover{color:var(--accent-600)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+::selection{background:var(--accent-100)}
+/* Panel de ubicación */
+.dia-cuerpo{display:grid;gap:16px;align-items:start}
+.ubic{display:grid;gap:12px;margin:0 0 24px;padding:16px;background:var(--surface);border-radius:var(--r);box-shadow:var(--sh-sm);min-width:0}
+.ubic h3{font:800 1.2rem/1.2 var(--font-h);margin:0}
+.ubic h4{font:800 1rem/1.2 var(--font-h);margin:0;overflow-wrap:anywhere}
+.ubic .foto{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;display:block;background:var(--soft)}
+.ubic .mapa{width:100%;aspect-ratio:4/3;border:0;border-radius:12px;display:block;background:var(--soft)}
+.ubic address{font-style:normal;font-size:.92rem;overflow-wrap:anywhere}
+.ubic .acc{display:grid;gap:8px;justify-items:start}
+.ubic .ruta{font-weight:600;color:var(--accent-700);overflow-wrap:anywhere}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ========== 2. Marco vertical 9:16 (pensado para celular) ========== */
+html,body{height:100%}
+body{background:var(--soft);display:flex;justify-content:center}
+.app{width:100%;max-width:560px;height:100dvh;overflow-y:auto;overflow-x:hidden;background:var(--bg);position:relative;-webkit-overflow-scrolling:touch}
+@media (min-width:600px){.app{box-shadow:var(--sh-lg)}}
+.chip{display:none}
+.pad{padding:0 14px}
+header.top{padding:12px 0 8px;border-top:6px solid var(--accent);box-shadow:inset 0 -0px 0 var(--yellow)}
+.top .pad{display:flex;gap:8px;align-items:center;justify-content:space-between}
+h1{font:800 1.05rem/1.2 var(--font-h);margin:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border:1.5px solid var(--line);background:var(--surface);border-radius:var(--pill);cursor:pointer;text-decoration:none;color:var(--text);font-weight:600;font-size:.92rem;transition:background .15s;touch-action:manipulation;white-space:nowrap}
+.btn:hover{background:var(--accent-100);color:var(--text)}
+.btn:active{background:#f9c9d0}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-600);border-color:var(--accent-600);color:#fff}
+.btn-sm{min-height:36px;padding:0 12px;font-size:.8rem}
+
+/* ========== 4. Calendario ========== */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:10px}
+.bar .btn{padding:0;width:44px}
+#hoy{width:auto;padding:0 14px}
+#mes{font:800 1.25rem/1.1 var(--font-h);margin:0;flex:1;text-align:center}
+details.fil{margin-bottom:10px}
+details.fil summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:var(--pill);border:1.5px solid var(--line);background:var(--surface);font-weight:600;font-size:.92rem}
+details.fil summary::-webkit-details-marker{display:none}
+details.fil[open] summary{background:var(--accent-100);border-color:var(--accent)}
+.filters{display:grid;gap:10px;padding-top:10px}
+.field label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin:0 0 3px 14px}
+.input{width:100%;min-height:44px;padding:0 16px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--pill);font-size:16px}
+select.input{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 22px) 50%,calc(100% - 16px) 50%;background-size:6px 6px;background-repeat:no-repeat;padding-right:38px}
+.input:hover{border-color:var(--accent)}
+.cal{background:var(--surface);border-radius:var(--r);box-shadow:var(--sh-sm);overflow:hidden}
+.dow,.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.dow div{padding:8px 0;text-align:center;font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+.day{min-height:60px;padding:4px 2px;border-top:1px solid var(--line);border-left:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;cursor:default;touch-action:manipulation}
+.day:nth-child(7n+1){border-left:0}
+.day.con{cursor:pointer}
+.day.con:hover{background:var(--accent-100)}
+.day.con:active{background:var(--accent-100)}
+.day.fuera{background:var(--soft);color:#8a8a8a}
+.num{min-width:26px;height:26px;display:grid;place-items:center;border-radius:var(--pill);font-weight:600;font-size:.85rem}
+.day.hoy .num{background:var(--accent);color:#fff;font-weight:800;box-shadow:0 0 0 2px var(--yellow)}
+.evs{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;align-items:center}
+.pt{width:9px;height:9px;border-radius:50%;display:block}
+.mas{font-size:.64rem;font-weight:700;color:var(--accent-700);line-height:1}
+.leyenda{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.78rem;color:var(--muted);margin:12px 0 0;padding:0;list-style:none}
+.leyenda i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.aviso{padding:16px;margin-top:12px;background:var(--surface);border-radius:var(--r);text-align:center;color:var(--muted);font-size:.9rem}
+.error{background:#fdecee;color:#7a0014;border-radius:var(--r);padding:18px;margin:12px 0;font-weight:500}
+.tag{display:inline-block;padding:2px 10px;border-radius:var(--pill);font-size:.76rem;font-weight:700}
+.tag.m{background:var(--soft);color:#3d3d3d}
+
+/* ========== 5. Página del día (agenda completa) ========== */
+.dia-h{display:flex;flex-direction:column;gap:10px;margin:8px 0 14px;align-items:flex-start}
+.dia-h h2{font:800 1.5rem/1.15 var(--font-h);margin:0}
+.dia-h p{margin:0;color:var(--muted);font-size:.9rem}
+.agenda{list-style:none;margin:0;padding:0 0 24px;display:grid;gap:12px}
+.ev{background:var(--surface);border-radius:var(--r);box-shadow:var(--sh-sm);padding:16px;display:grid;gap:8px}
+.ev .hora{font-weight:700;color:var(--accent-700)}
+.ev h3{font:800 1.2rem/1.2 var(--font-h);margin:0;overflow-wrap:anywhere}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:.92rem}
+dt{font-weight:700;color:var(--muted)}
+dd{margin:0;overflow-wrap:anywhere}
+.ev p{margin:0;overflow-wrap:anywhere;font-size:.95rem}
+.ev .btn{justify-self:start}
+/* Panel de ubicación */
+.dia-cuerpo{display:grid;gap:16px;align-items:start}
+.ubic{display:grid;gap:12px;margin:0 0 24px;padding:16px;background:var(--surface);border-radius:var(--r);box-shadow:var(--sh-sm);min-width:0}
+.ubic h3{font:800 1.2rem/1.2 var(--font-h);margin:0}
+.ubic h4{font:800 1rem/1.2 var(--font-h);margin:0;overflow-wrap:anywhere}
+.ubic .foto{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;display:block;background:var(--soft)}
+.ubic .mapa{width:100%;aspect-ratio:4/3;border:0;border-radius:12px;display:block;background:var(--soft)}
+.ubic address{font-style:normal;font-size:.92rem;overflow-wrap:anywhere}
+.ubic .acc{display:grid;gap:8px;justify-items:start}
+.ubic .ruta{font-weight:600;color:var(--accent-700);overflow-wrap:anywhere}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+footer{padding:20px 14px 32px;color:var(--muted);font-size:.85rem}
+/* Escritorio: diseño ancho */
+@media (min-width:900px){
+.app{max-width:1120px}.pad{padding:0 32px}
+h1{font-size:1.4rem}header.top{padding:20px 0 10px}
+.day{min-height:108px;align-items:stretch;padding:6px 6px;gap:4px}
+.num{align-self:flex-start}
+.pt{display:none}
+.evs{flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:3px}
+.chip{display:block;font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:var(--pill);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mas{text-align:left;font-size:.74rem;padding-left:4px}
+.dow div{font-size:.78rem}
+.filters{grid-template-columns:2fr 1fr 1fr}
+.dia-cuerpo.con-ubic{grid-template-columns:minmax(0,1fr) 380px}.dia-cuerpo:not(.con-ubic) .agenda{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+.ubic{position:sticky;top:12px}
+#vista-cal .bar{max-width:520px;margin-left:auto;margin-right:auto}
+}
+
+/* ========== 6. Guías de uso ========== */
+.guia{display:flex;align-items:center;gap:10px;margin:12px 0 0;padding:10px 12px;background:#fff8dc;border:1.5px solid var(--yellow);border-radius:var(--r);font-size:.88rem;line-height:1.35}
+.guia .ico{font-size:1.4rem;flex:none}
+.guia p{margin:0;flex:1}
+.guia .btn{flex:none}
+details.fil summary::after{content:"▾";margin-left:8px;transition:transform .15s}
+details.fil[open] summary::after{transform:rotate(180deg)}
+.day.tiene{background:linear-gradient(#fff,#fff6f7)}
+.day.tiene.fuera{background:var(--soft)}
+.day.con:hover .num{box-shadow:0 0 0 2px var(--accent)}
+.ver-mas{display:none;font-size:.62rem;font-weight:700;color:var(--accent-700)}
+.ev-pista{font-size:.8rem;color:var(--muted);margin:0}
+
+/* Lista de participantes (menú desplegable) */
+details.part{border:1.5px solid var(--accent);border-radius:14px;background:var(--accent-100);overflow:hidden}
+details.part summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:48px;padding:8px 14px;font-weight:700;color:var(--accent-700);touch-action:manipulation}
+details.part summary::-webkit-details-marker{display:none}
+details.part summary:hover{background:#fbd5da}
+.part .p-t{flex:1;display:flex;flex-direction:column;line-height:1.25}
+.part .p-t small{font-weight:500;color:var(--muted);font-size:.76rem}
+.part .p-ch{width:10px;height:10px;border-right:2.5px solid currentColor;border-bottom:2.5px solid currentColor;transform:rotate(45deg);margin-right:4px;transition:transform .15s}
+.part[open] .p-ch{transform:rotate(-135deg)}
+.part .abierto{display:none}.part[open] .abierto{display:inline}.part[open] .cerrado{display:none}
+.part ul{list-style:none;margin:0;padding:0;background:var(--surface);max-height:340px;overflow:auto;font-size:.92rem}
+.part li{padding:8px 14px;border-top:1px solid var(--line);display:grid;gap:1px;overflow-wrap:anywhere}
+.part li small{color:var(--muted);font-size:.8rem}
+.part li[hidden]{display:none}
+.p-bus{padding:8px 12px;background:var(--surface);border-top:1px solid var(--line)}
+.p-bus .input{min-height:40px}
+.xl{padding-top:8px;padding-bottom:8px;border-radius:16px;font-size:.85rem}
+.part .vacio{margin:0;padding:12px 14px;background:var(--surface);color:var(--muted);font-size:.9rem}
+
+/* Botón flotante + avisos */
+.fab-wrap{position:sticky;bottom:0;height:0;overflow:visible;z-index:20;pointer-events:none}
+.fab{position:absolute;right:14px;bottom:calc(16px + env(safe-area-inset-bottom));pointer-events:auto;min-height:52px;padding:0 20px;border-radius:var(--pill);border:0;background:var(--accent);color:#fff;font-weight:800;font-size:1rem;box-shadow:0 6px 18px rgba(200,0,30,.45);cursor:pointer;display:inline-flex;align-items:center;gap:8px;touch-action:manipulation}
+.fab:hover{background:var(--accent-600)}
+.fab b{font-size:1.5rem;line-height:1;font-weight:700}
+@media (min-width:900px){.fab{right:24px}}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);max-width:min(92vw,420px);background:#2b2b2b;color:#fff;padding:12px 18px;border-radius:14px;font-size:.92rem;box-shadow:var(--sh-lg);z-index:100}
+.toast[hidden]{display:none}
+
+/* Ventanas (agregar evento / ayuda) */
+dialog{border:0;padding:0;border-radius:20px;width:calc(100% - 24px);max-width:520px;max-height:92dvh;box-shadow:var(--sh-lg);color:var(--text);background:var(--surface)}
+dialog[open]{display:flex;flex-direction:column;overflow:hidden}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+@media (max-width:599px){dialog{margin:auto auto 0;width:100%;max-width:none;border-radius:20px 20px 0 0}}
+.dlg-form{display:flex;flex-direction:column;min-height:0;flex:1}
+.dlg-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);border-top:5px solid var(--accent)}
+.dlg-h h2{font:800 1.2rem/1.2 var(--font-h);margin:0}
+.dlg-b{padding:14px 16px;overflow-y:auto;display:grid;gap:12px;align-content:start;flex:1;min-height:0}
+.dlg-f{display:flex;gap:10px;justify-content:flex-end;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--surface)}
+.dlg-f .btn-primary{flex:1;max-width:260px}
+.fila2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+textarea.input{padding:10px 16px;border-radius:16px;min-height:84px;resize:vertical}
+.req{color:var(--accent)}
+.ayuda{font-size:.78rem;color:var(--muted);margin:3px 0 0 14px}
+details.mas-op,details.acceso{border:1.5px solid var(--line);border-radius:14px;padding:0 12px}
+details.mas-op summary,details.acceso summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+details.mas-op[open],details.acceso[open]{padding-bottom:12px}
+details.mas-op>div,details.acceso>div{display:grid;gap:12px}
+details.acceso p{font-size:.84rem;margin:0 0 10px;color:var(--muted)}
+.chk{display:flex;align-items:center;gap:10px;min-height:44px;font-weight:600}
+.chk input{width:22px;height:22px;accent-color:var(--accent)}
+.msg{padding:10px 12px;border-radius:12px;font-size:.9rem}
+.msg.err{background:#fdecee;color:#7a0014}
+.msg.ok{background:#e6f4ea;color:#1d4d2a}
+.pasos{list-style:none;margin:0;padding:0;display:grid;gap:14px;counter-reset:p}
+.pasos li{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start}
+.pasos li::before{counter-increment:p;content:counter(p);width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;display:grid;place-items:center}
+.pasos li>div>b:first-child{display:block}
+.pasos li[hidden],.fab-wrap[hidden]{display:none}
+.pasos span{color:var(--muted);font-size:.9rem}
+.mini-pt{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--accent);vertical-align:middle}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+<header class="top"><div class="pad">
+  <h1>Calendario de eventos de RH · Plaza Mérida</h1>
+  <a class="btn btn-sm" href="index.html">← Volver al inicio</a>
+</div></header>
+
+<main class="pad">
+  <!-- Vista: calendario mensual -->
+  <section id="vista-cal" aria-label="Calendario mensual">
+    <div class="bar" role="group" aria-label="Navegación de mes">
+      <button class="btn" id="prev" type="button" aria-label="Mes anterior">‹</button>
+      <h2 id="mes" aria-live="polite"></h2>
+      <button class="btn" id="next" type="button" aria-label="Mes siguiente">›</button>
+    </div>
+    <div class="bar" style="justify-content:flex-end;margin-top:-4px"><button class="btn btn-sm" id="hoy" type="button">Hoy</button></div>
+    <details class="fil" id="fil"><summary>Filtros y búsqueda</summary>
+      <form class="filters" role="search" aria-label="Filtros de eventos" onsubmit="return false">
+        <div class="field"><label for="f-q">Buscar</label><input class="input" id="f-q" type="search" placeholder="Título u organizador" autocomplete="off"></div>
+        <div class="field"><label for="f-cat">Categoría</label>
+          <select class="input" id="f-cat"><option value="">Todas</option></select></div>
+        <div class="field"><label for="f-mod">Modalidad</label>
+          <select class="input" id="f-mod"><option value="">Todas</option><option value="presencial">Presencial</option><option value="virtual">Virtual</option><option value="hibrido">Híbrido</option></select></div>
+      </form>
+    </details>
+    <div class="cal">
+      <div class="dow" aria-hidden="true"><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div></div>
+      <div class="grid" id="grid"></div>
+    </div>
+    <ul class="leyenda" id="leyenda" aria-label="Colores por categoría"></ul>
+    <div class="guia">
+      <span class="ico" aria-hidden="true">👆</span>
+      <p><b>Toca un día</b> para ver sus eventos. Los <b>puntos de color</b> indican que hay actividades.</p>
+      <button type="button" class="btn btn-sm" data-ayuda>¿Cómo se usa?</button>
+    </div>
+  </section>
+
+  <!-- Vista: agenda de un día -->
+  <section id="vista-dia" aria-label="Agenda del día" hidden></section>
+
+  <div id="estado" role="status"></div>
+</main>
+
+<footer><span id="actualizado">Última actualización: …</span></footer>
+<div class="fab-wrap" id="fab-wrap" hidden><button type="button" class="fab" data-nuevo aria-label="Agregar un evento nuevo"><b aria-hidden="true">+</b> Agregar evento</button></div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<!-- Ventana: agregar evento -->
+<dialog id="dlg-nuevo" aria-labelledby="dn-t">
+ <form id="f-nuevo" class="dlg-form">
+  <div class="dlg-h"><h2 id="dn-t">Agregar evento</h2><button type="button" class="btn btn-sm" data-cerrar aria-label="Cerrar">✕</button></div>
+  <div class="dlg-b">
+    <div class="field"><label for="n-titulo">Título <span class="req">*</span></label><input class="input" id="n-titulo" required maxlength="120" autocomplete="off" placeholder="Ej. Taller de servicio al cliente"></div>
+    <div class="field"><label for="n-fecha">Fecha <span class="req">*</span></label><input class="input" id="n-fecha" type="date" required></div>
+    <div class="fila2">
+      <div class="field"><label for="n-ini">Hora de inicio</label><input class="input" id="n-ini" type="time"></div>
+      <div class="field"><label for="n-fin">Hora de fin</label><input class="input" id="n-fin" type="time"></div>
+    </div>
+    <p class="ayuda" style="margin-top:-6px">Si lo dejas vacío, será un evento de todo el día.</p>
+    <div class="field"><label for="n-lugar">Lugar</label><input class="input" id="n-lugar" list="dl-lugares" maxlength="120" autocomplete="off" placeholder="Ej. Oficinas Montecristo o Microsoft Teams"><datalist id="dl-lugares"></datalist></div>
+    <div class="fila2">
+      <div class="field"><label for="n-cat">Categoría</label><input class="input" id="n-cat" list="dl-cats" maxlength="40" autocomplete="off" placeholder="capacitacion"><datalist id="dl-cats"></datalist></div>
+      <div class="field"><label for="n-mod">Modalidad</label><select class="input" id="n-mod"><option value="presencial">Presencial</option><option value="virtual">Virtual</option><option value="hibrido">Híbrido</option></select></div>
+    </div>
+
+    <details class="mas-op" id="dn-masop"><summary>Más opciones (organizador, participantes, repetir…)</summary>
+     <div>
+      <div class="field"><label for="n-org">Organizador</label><input class="input" id="n-org" maxlength="120" autocomplete="off"></div>
+      <div class="field"><label for="n-url">Enlace (Teams, registro, etc.)</label><input class="input" id="n-url" type="url" placeholder="https://" autocomplete="off"></div>
+      <div class="field"><label for="n-desc">Descripción</label><textarea class="input" id="n-desc" maxlength="600"></textarea></div>
+      <div class="field"><label for="n-part">Lista de invitados</label>
+        <input class="input xl" type="file" accept=".xlsx,.xls,.csv" data-destino="n-part" aria-label="Subir lista desde Excel">
+        <textarea class="input lista-ta" id="n-part" placeholder="O pega aquí desde Excel las columnas: asesor, tienda, nombre"></textarea>
+        <p class="ayuda" data-cuenta="n-part">Opcional. En Excel selecciona las 3 columnas (asesor, tienda, nombre), copia y pega aquí. Con lista, el evento muestra «Ver lista de participantes».</p></div>
+      <label class="chk"><input type="checkbox" id="n-rep"> Se repite cada semana (el mismo día)</label>
+      <div class="field" id="n-hasta-w" hidden><label for="n-hasta">Repetir hasta</label><input class="input" id="n-hasta" type="date"></div>
+     </div>
+    </details>
+
+    <div id="dn-msg" role="status"></div>
+
+    <details class="acceso" id="dn-acceso"><summary>🔑 Acceso para publicar (se configura una sola vez)</summary>
+     <div>
+      <p>Para guardar directo en el calendario se necesita un <b>token de GitHub</b> con permiso de escritura solo en este repositorio. Se guarda únicamente en este dispositivo.
+        <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">Crear token</a> (Repository access: solo este repo · Permissions: <i>Contents → Read and write</i>).</p>
+      <div class="field"><label for="n-repo">Repositorio (usuario/nombre)</label><input class="input" id="n-repo" placeholder="usuario/calendario" autocomplete="off" autocapitalize="none"></div>
+      <div class="field"><label for="n-token">Token</label><input class="input" id="n-token" type="password" autocomplete="off" placeholder="github_pat_…"></div>
+      <button type="button" class="btn btn-sm btn-primary" id="n-guardar-acc">Guardar acceso</button>
+      <button type="button" class="btn btn-sm" id="n-quitar">Salir del modo editor en este dispositivo</button>
+      <p style="margin:0">¿Sin token? <button type="button" class="btn btn-sm" id="n-copiar">Copiar el evento</button> y pégalo en <a id="n-editar" href="https://github.com" target="_blank" rel="noopener noreferrer">el archivo eventos.json de GitHub</a>, dentro de la lista «eventos».</p>
+     </div>
+    </details>
+  </div>
+  <div class="dlg-f"><button type="button" class="btn" data-cerrar>Cancelar</button><button class="btn btn-primary" type="submit" id="n-ok">Publicar evento</button></div>
+ </form>
+</dialog>
+
+<!-- Ventana: lista de invitados de un evento existente -->
+<dialog id="dlg-lista" aria-labelledby="dl-t">
+ <form id="f-lista" class="dlg-form">
+  <div class="dlg-h"><h2 id="dl-t">Lista de invitados</h2><button type="button" class="btn btn-sm" data-cerrar aria-label="Cerrar">✕</button></div>
+  <div class="dlg-b">
+    <p class="ayuda" id="dl-ev" style="margin:0"></p>
+    <div class="field"><label for="l-file">Subir desde Excel (.xlsx o .csv)</label><input class="input xl" id="l-file" type="file" accept=".xlsx,.xls,.csv" data-destino="l-txt"></div>
+    <div class="field"><label for="l-txt">O pega desde Excel (asesor, tienda, nombre)</label><textarea class="input lista-ta" id="l-txt" style="min-height:200px" placeholder="asesor [tab] tienda [tab] nombre"></textarea>
+      <p class="ayuda" data-cuenta="l-txt"></p></div>
+    <p class="ayuda" style="margin:0">Al guardar, la lista del evento queda igual a lo que aparece en este cuadro. Para agregar más gente, pega debajo de lo que ya está.</p>
+    <div id="dl-msg" role="status"></div>
+  </div>
+  <div class="dlg-f"><button type="button" class="btn" data-cerrar>Cancelar</button><button class="btn btn-primary" type="submit" id="l-ok">Guardar lista</button></div>
+ </form>
+</dialog>
+
+<!-- Ventana: cómo se usa -->
+<dialog id="dlg-ayuda" aria-labelledby="da-t">
+  <div class="dlg-h"><h2 id="da-t">¿Cómo se usa el calendario?</h2><button type="button" class="btn btn-sm" data-cerrar aria-label="Cerrar">✕</button></div>
+  <div class="dlg-b">
+    <ol class="pasos">
+      <li><div><b>Toca un día</b><span>Los días con <i class="mini-pt"></i> puntos de color tienen eventos. Se abre la agenda de ese día.</span></div></li>
+      <li><div><b>Revisa el detalle</b><span>Verás horario, lugar y mapa. Si el evento tiene el botón <b>«Ver lista de participantes»</b>, tócalo para desplegarla.</span></div></li>
+      <li id="paso-admin" hidden><div><b>Agrega un evento</b><span>Usa el botón rojo <b>«+ Agregar evento»</b> de la esquina inferior. Solo necesitas título y fecha.</span></div></li>
+      <li><div><b>Filtra y busca</b><span>Con «Filtros y búsqueda» encuentras eventos por nombre, categoría o modalidad.</span></div></li>
+    </ol>
+  </div>
+  <div class="dlg-f"><button type="button" class="btn btn-primary" data-cerrar>Entendido</button></div>
+</dialog>
+<script>
+/* ========== Configuración ========== */
+const DATA_URL = 'data/eventos.json';
+/* Las categorías se leen del JSON; cada una recibe un color de esta paleta (fondo, texto, punto) */
+const PALETA = [['#fbd5da','#7a0014','#c8001e'],['#ffefb0','#5c4600','#e6ab00'],['#d3e2f5','#17406e','#2f6db5'],['#d4ecd9','#1d4d2a','#2e8a47'],['#e5d9f2','#43256b','#7b4bb5'],['#fde0c8','#6b3300','#d9701c'],['#d2eeee','#0f4a4a','#1f9494'],['#e8e6e3','#3d3d3d','#8a8a8a']];
+let CATS = {};
+const MODS = {presencial:'Presencial',virtual:'Virtual',hibrido:'Híbrido'};
+const MAX_PUNTOS = 3;   // puntos de color por día; el resto se indica con "+N más"
+
+/* ========== Estado ========== */
+let eventos = [];
+const hoy = new Date();
+let cur = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+let ruta = {v:'calendario'};            // {v:'calendario'|'dia', dia?}
+const $ = id => document.getElementById(id);
+
+/* ========== Utilidades ========== */
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const pad = n => String(n).padStart(2,'0');
+const iso = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); };
+const fechaLarga = s => parse(s).toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const horario = e => e.hora_inicio ? (e.hora_fin ? e.hora_inicio+' – '+e.hora_fin+' h' : e.hora_inicio+' h') : 'Todo el día';
+const slug = s => String(s||'otro').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'otro';
+const cat = e => slug(e.categoria);
+/* Crea filtro, leyenda y colores a partir de las categorías presentes en los datos */
+function prepararCategorias(){
+  CATS = {};
+  eventos.forEach(e => { const k = cat(e); if(!CATS[k]){ const t = String(e.categoria||'Otro').trim(); CATS[k] = t.charAt(0).toUpperCase()+t.slice(1); } });
+  const claves = Object.keys(CATS).sort((a,b)=>CATS[a].localeCompare(CATS[b],'es'));
+  let css = '';
+  claves.forEach((k,n) => { const p = PALETA[n % PALETA.length];
+    css += '.cat-'+k+'{background:'+p[0]+';color:'+p[1]+'}.pt.cat-'+k+'{background:'+p[2]+'}.dot-'+k+'{background:'+p[2]+'}'; });
+  let st = $('cat-estilos'); if(!st){ st = document.createElement('style'); st.id = 'cat-estilos'; document.head.appendChild(st); }
+  st.textContent = css;
+  $('f-cat').innerHTML = '<option value="">Todas</option>' + claves.map(k => '<option value="'+k+'">'+esc(CATS[k])+'</option>').join('');
+  $('leyenda').innerHTML = claves.map(k => '<li><i class="dot-'+k+'"></i>'+esc(CATS[k])+'</li>').join('');
+}
+const validFecha = s => /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(parse(s));
+const porHora = (a,b) => (a.fecha+(a.hora_inicio||'99:99')).localeCompare(b.fecha+(b.hora_inicio||'99:99'));
+
+/* ========== Eventos recurrentes ==========
+   recurrencia: { dia_semana, desde, hasta, excepciones? } — dia_semana: nombre en español ("martes") o número 1 (lunes) a 7 (domingo).
+   "excepciones" (lista de AAAA-MM-DD) puede ir dentro de recurrencia o al nivel del evento. */
+const DIAS = {lunes:1,martes:2,miercoles:3,jueves:4,viernes:5,sabado:6,domingo:7};
+function numDia(v){
+  if(typeof v==='number') return v>=1 && v<=7 ? v : 0;
+  const s = String(v||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return DIAS[s] || (/^[1-7]$/.test(s) ? +s : 0);
+}
+function expandir(lista){
+  const out = [];
+  lista.forEach(e => {
+    if(!e || !e.id || !e.titulo) return;
+    const rc = e.recurrencia;
+    if(!rc){ if(validFecha(e.fecha)) out.push(e); return; }
+    const dia = numDia(rc.dia_semana);
+    if(!dia || !validFecha(rc.desde) || !validFecha(rc.hasta)) return;
+    const ex = new Set([].concat(rc.excepciones||[], e.excepciones||[]));
+    const fin = parse(rc.hasta);
+    let d = parse(rc.desde);
+    d.setDate(d.getDate() + ((dia - (d.getDay()||7) + 7) % 7));   // primer día de la semana indicado
+    for(let n=0; d<=fin && n<400; n++, d.setDate(d.getDate()+7)){
+      const f = iso(d);
+      if(!ex.has(f)) out.push({...e, fecha:f, id:e.id+'@'+f});
+    }
+  });
+  return out;
+}
+
+/* ========== Ubicaciones (data/ubicaciones.json, opcional) ========== */
+const UBIC_URL = 'data/ubicaciones.json';
+let UBIC = {};                       // llave normalizada -> {nombre, ...datos}
+const norm = s => String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
+async function cargarUbicaciones(){
+  try{
+    const r = await fetch(UBIC_URL, {cache:'no-cache'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+    UBIC = {};
+    Object.keys(j||{}).forEach(n => { if(j[n] && typeof j[n]==='object') UBIC[norm(n)] = {...j[n], nombre:n}; });
+    if(ruta.v==='dia') renderDia();
+  }catch(err){ console.warn('Ubicaciones no disponibles:', err); UBIC = {}; }   // el calendario sigue sin el panel
+}
+/* Extrae el src del iframe guardado en el JSON y solo acepta mapas de Google (evita inyectar HTML arbitrario) */
+function srcMapa(emb){
+  const m = /src\s*=\s*["']([^"']+)["']/i.exec(emb||'');
+  return m && /^https:\/\/www\.google\.com\/maps\/embed/i.test(m[1]) ? m[1] : '';
+}
+function panelUbicacion(u){
+  const src = srcMapa(u.mapa_embed), dir = u.direccion || '';
+  return '<section class="ubic" aria-label="Ubicación: '+esc(u.nombre)+'"><h3>Ubicación</h3><h4>'+esc(u.nombre)+'</h4>'+
+    (u.foto ? '<img class="foto" src="'+esc(u.foto)+'" alt="Fachada de '+esc(u.nombre)+'" loading="lazy">' : '')+
+    (src ? '<iframe class="mapa" src="'+esc(src)+'" title="Mapa de '+esc(u.nombre)+'" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>' : '')+
+    (dir ? '<address>'+esc(dir)+'</address>' : '')+
+    '<div class="acc">'+
+    (/^https?:\/\//i.test(u.maps_url||'') ? '<a class="btn btn-primary" href="'+esc(u.maps_url)+'" target="_blank" rel="noopener noreferrer">Abrir en Maps<span class="sr-only"> (se abre en una pestaña nueva)</span></a>' : '')+
+    (dir ? '<a class="ruta" href="https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(u.coordenadas||dir)+'" target="_blank" rel="noopener noreferrer">Ver ruta a '+esc(u.nombre)+'<span class="sr-only"> (se abre en una pestaña nueva)</span></a>' : '')+
+    '</div></section>';
+}
+/* Si la foto no carga, se oculta sin afectar el resto */
+document.addEventListener('error', ev => { if(ev.target.matches && ev.target.matches('.ubic .foto')) ev.target.remove(); }, true);
+
+/* ========== Carga de datos ========== */
+async function cargar(){
+  try{
+    const r = await fetch(DATA_URL, {cache:'no-cache'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+    if(!j || !Array.isArray(j.eventos)) throw new Error('Formato inválido: falta la lista "eventos".');
+    eventos = expandir(j.eventos).sort(porHora);
+    let act = 'sin fecha';
+    if(validFecha(j.actualizado)) act = fechaLarga(j.actualizado);
+    else if(j.actualizado) act = String(j.actualizado);
+    $('actualizado').textContent = 'Última actualización: ' + act;
+    prepararCategorias();
+    render();
+  }catch(err){
+    console.error(err);
+    $('estado').innerHTML = '<div class="error" role="alert">No se pudieron cargar los eventos. Verifica tu conexión e inténtalo de nuevo más tarde. Si el problema continúa, el archivo de datos podría estar dañado.</div>';
+    $('actualizado').textContent = 'Última actualización: no disponible';
+  }
+}
+
+/* ========== Filtros ========== */
+function filtrados(){
+  const q = $('f-q').value.trim().toLowerCase(), c = $('f-cat').value, m = $('f-mod').value;
+  return eventos.filter(e =>
+    (!c || cat(e)===c) && (!m || e.modalidad===m) &&
+    (!q || (e.titulo||'').toLowerCase().includes(q) || (e.organizador||'').toLowerCase().includes(q)));
+}
+
+/* ========== Navegación entre vistas (hash: #calendario, #dia/AAAA-MM-DD) ========== */
+function leerRuta(){
+  const h = location.hash.slice(1);
+  if(h==='editor'){                       // enlace privado para activar el modo editor en este dispositivo
+    store.set('admin','1'); history.replaceState(null,'',location.pathname+location.search);
+    setTimeout(() => { aplicarAdmin(); render(); aviso('Modo editor activado en este dispositivo.'); }, 0);
+    return {v:'calendario'};
+  }
+  if(h.startsWith('dia/') && validFecha(h.slice(4))) return {v:'dia', dia:h.slice(4)};
+  return {v:'calendario'};
+}
+function ir(hash){ location.hash = hash; }
+window.addEventListener('hashchange', () => { ruta = leerRuta(); render(true); });
+
+/* ========== Render ========== */
+function render(reset){
+  const v = ruta.v;
+  $('vista-cal').hidden = v!=='calendario';
+  $('vista-dia').hidden = v!=='dia';
+  if(v==='calendario') renderCal();
+  if(v==='dia') renderDia();
+  if(reset===true) $('app').scrollTop = 0;
+}
+
+function renderCal(){
+  const lista = filtrados(), mapa = {};
+  lista.forEach(e => (mapa[e.fecha] ||= []).push(e));
+  $('mes').textContent = cap(cur.toLocaleDateString('es-MX',{month:'long',year:'numeric'}));
+  const offset = (new Date(cur.getFullYear(), cur.getMonth(), 1).getDay()+6)%7;   // lunes = 0
+  const inicio = new Date(cur.getFullYear(), cur.getMonth(), 1-offset);
+  const semanas = Math.ceil((offset + new Date(cur.getFullYear(), cur.getMonth()+1, 0).getDate())/7);
+  let h = '', delMes = 0;
+  for(let i=0;i<semanas*7;i++){
+    const d = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate()+i);
+    const k = iso(d), evs = mapa[k]||[], dentro = d.getMonth()===cur.getMonth();
+    if(dentro) delMes += evs.length;
+    const label = fechaLarga(k)+(k===iso(hoy)?' (hoy)':'')+', '+(evs.length ? evs.length+(evs.length===1?' evento':' eventos') : 'sin eventos');
+    const cls = 'day'+(dentro?'':' fuera')+(k===iso(hoy)?' hoy':'')+' con'+(evs.length?' tiene':'');
+    const attrs = ' role="button" tabindex="0" data-dia="'+k+'"';
+    h += '<div class="'+cls+'"'+attrs+' aria-label="'+esc(label)+'"><span class="num">'+d.getDate()+'</span><div class="evs">';
+    evs.slice(0,MAX_PUNTOS).forEach(e => { h += '<i class="pt cat-'+cat(e)+'"></i><span class="chip cat-'+cat(e)+'">'+esc(e.titulo)+'</span>'; });
+    if(evs.length>MAX_PUNTOS) h += '<span class="mas">+'+(evs.length-MAX_PUNTOS)+' más</span>';
+    h += '</div></div>';
+  }
+  $('grid').innerHTML = h;
+  $('estado').innerHTML = eventos.length && !delMes ? '<div class="aviso">No hay eventos este mes con los filtros actuales.</div>' : '';
+}
+
+function renderDia(){
+  const k = ruta.dia, evs = filtrados().filter(e => e.fecha===k).sort(porHora);
+  const ubics = [], vistos = new Set();   // ubicaciones conocidas entre los eventos del día
+  evs.forEach(e => { const u = UBIC[norm(e.lugar)]; if(u && !vistos.has(u.nombre)){ vistos.add(u.nombre); ubics.push(u); } });
+  const fila = (t,v) => v ? '<dt>'+t+'</dt><dd>'+esc(v)+'</dd>' : '';
+  /* Menú desplegable de participantes: solo aparece si el evento tiene el campo "participantes" */
+  const participantes = e => {
+    if(!Array.isArray(e.participantes)) return '';
+    const lista = e.participantes.map(normP), n = lista.length;
+    const fila = p => '<li data-q="'+esc(norm([p.nombre,p.tienda,p.asesor].join(' ')))+'"><b>'+esc(p.nombre||'—')+'</b>'+
+      ((p.tienda||p.asesor) ? '<small>'+[p.tienda && 'Tienda: '+esc(p.tienda), p.asesor && 'Asesor: '+esc(p.asesor)].filter(Boolean).join(' · ')+'</small>' : '')+'</li>';
+    return '<details class="part"><summary><span aria-hidden="true">👥</span><span class="p-t">'+
+      '<span class="cerrado">Ver lista de participantes ('+n+')</span><span class="abierto">Ocultar lista de participantes</span>'+
+      '<small>Toca aquí para desplegar</small></span><span class="p-ch" aria-hidden="true"></span></summary>'+
+      (n > 8 ? '<div class="p-bus"><input class="input" type="search" data-buscar placeholder="Buscar por nombre, tienda o asesor" aria-label="Buscar en la lista" autocomplete="off"></div>' : '')+
+      (n ? '<ul>'+lista.map(fila).join('')+'</ul>' : '<p class="vacio">Aún no hay participantes registrados.</p>')+
+      '</details>';
+  };
+  $('estado').innerHTML = '';
+  $('vista-dia').innerHTML =
+    '<div class="dia-h"><button type="button" class="btn btn-sm" data-volver>← Calendario</button>'+
+    '<h2>'+esc(cap(fechaLarga(k)))+'</h2>'+(esAdmin() ? '<button type="button" class="btn btn-sm btn-primary" data-nuevo="'+k+'">+ Agregar evento este día</button>' : '')+'<p>'+(evs.length ? evs.length+(evs.length===1?' evento':' eventos') : (eventos.some(e => e.fecha===k) ? 'No hay eventos este día con los filtros actuales.' : 'No hay eventos programados este día.'))+'</p></div>'+
+    '<div class="dia-cuerpo'+(ubics.length?' con-ubic':'')+'"><ul class="agenda">'+evs.map(e =>
+      '<li class="ev"><span class="hora">'+esc(horario(e))+'</span><h3>'+esc(e.titulo)+'</h3>'+
+      '<div class="tags"><span class="tag cat-'+cat(e)+'">'+CATS[cat(e)]+'</span><span class="tag m">'+esc(MODS[e.modalidad]||'Modalidad por confirmar')+'</span></div>'+
+      '<dl>'+fila('Lugar',e.lugar)+fila('Organizador',e.organizador)+'</dl>'+
+      (e.descripcion ? '<p>'+esc(e.descripcion)+'</p>' : '')+
+      participantes(e)+
+      (esAdmin() ? '<button type="button" class="btn btn-sm" data-lista="'+esc(baseId(e))+'">👥 '+(Array.isArray(e.participantes)?'Editar':'Cargar')+' lista de invitados</button>' : '')+
+      (/^https?:\/\//i.test(e.url||'') ? '<a class="btn btn-primary" href="'+esc(e.url)+'" target="_blank" rel="noopener noreferrer">Ver más información<span class="sr-only"> (se abre en una pestaña nueva)</span></a>' : '')+
+      '</li>').join('')+'</ul>'+ubics.map(panelUbicacion).join('')+'</div>';
+}
+
+/* ========== Agregar evento ==========
+   Publica escribiendo data/eventos.json en el repositorio de GitHub con la API (requiere un token personal,
+   que se guarda solo en este dispositivo). Sin token, ofrece copiar el evento para pegarlo en GitHub. */
+const ARCHIVO = 'data/eventos.json';
+const store = {
+  get(k){ try{ return localStorage.getItem(k) || ''; }catch(_){ return ''; } },
+  set(k,v){ try{ v ? localStorage.setItem(k,v) : localStorage.removeItem(k); }catch(_){} }
+};
+/* En GitHub Pages el repositorio se deduce de la dirección: usuario.github.io/repo/ */
+function repoAuto(){
+  const m = /^([^.]+)\.github\.io$/i.exec(location.hostname); if(!m) return '';
+  const p = location.pathname.split('/').filter(Boolean)[0];
+  return m[1]+'/'+(p && !/\.html?$/i.test(p) ? p : m[1]+'.github.io');
+}
+/* Modo editor: los botones de agregar solo aparecen en dispositivos donde se activó (abriendo calendario.html#editor) */
+const esAdmin = () => !!(store.get('admin') || store.get('gh_token'));
+function aplicarAdmin(){
+  $('fab-wrap').hidden = !esAdmin();
+  $('paso-admin').hidden = !esAdmin();
+}
+const repoActual = () => store.get('gh_repo') || repoAuto();
+const toB64 = s => { let b=''; new TextEncoder().encode(s).forEach(x => b += String.fromCharCode(x)); return btoa(b); };
+const fromB64 = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g,'')), c => c.charCodeAt(0)));
+/* Una línea por evento, como el archivo original, para que los cambios en GitHub sean fáciles de revisar */
+const serializar = j => '{\n'+Object.keys(j).filter(k => k!=='eventos').map(k => '  '+JSON.stringify(k)+': '+JSON.stringify(j[k])+',\n').join('')+
+  '  "eventos": [\n'+j.eventos.map(e => '    '+JSON.stringify(e)).join(',\n')+'\n  ]\n}\n';
+
+let toastT;
+function aviso(txt){ const t = $('toast'); t.textContent = txt; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 5000); }
+function msg(txt, tipo){ $('dn-msg').innerHTML = txt ? '<div class="msg '+(tipo||'')+'">'+txt+'</div>' : ''; }
+
+function abrirNuevo(fecha){
+  const f = $('f-nuevo'); f.reset(); msg('');
+  $('n-fecha').value = validFecha(fecha) ? fecha : (ruta.v==='dia' ? ruta.dia : iso(hoy));
+  $('n-hasta-w').hidden = true;
+  const lugares = new Set(['Microsoft Teams']); Object.values(UBIC).forEach(u => lugares.add(u.nombre)); eventos.forEach(e => e.lugar && lugares.add(e.lugar));
+  $('dl-lugares').innerHTML = [...lugares].map(l => '<option value="'+esc(l)+'">').join('');
+  const cats = new Set(); eventos.forEach(e => e.categoria && cats.add(String(e.categoria).trim().toLowerCase()));
+  $('dl-cats').innerHTML = [...cats].map(c => '<option value="'+esc(c)+'">').join('');
+  $('n-repo').value = repoActual(); $('n-token').value = store.get('gh_token');
+  $('dn-acceso').open = !store.get('gh_token');
+  $('n-editar').href = repoActual() ? 'https://github.com/'+repoActual()+'/edit/main/'+ARCHIVO : 'https://github.com';
+  $('dlg-nuevo').showModal();
+  $('n-titulo').focus();
+}
+
+function leerFormulario(){
+  const v = id => $(id).value.trim();
+  const e = {titulo:v('n-titulo'), fecha:v('n-fecha'), hora_inicio:v('n-ini'), hora_fin:v('n-fin'), lugar:v('n-lugar'),
+    organizador:v('n-org'), categoria:(v('n-cat') || 'otro').toLowerCase(), modalidad:$('n-mod').value, url:v('n-url'), descripcion:v('n-desc')};
+  const part = parseLista($('n-part').value);
+  if(part.length) e.participantes = part;
+  if($('n-rep').checked){
+    const dias = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+    e.recurrencia = {dia_semana:dias[parse(e.fecha).getDay()], desde:e.fecha, hasta:v('n-hasta')};
+    delete e.fecha;
+  }
+  e.id = (e.fecha || e.recurrencia.desde)+'-'+slug(e.titulo).slice(0,50);
+  return e;
+}
+
+/* Lista de invitados: acepta texto pegado desde Excel (columnas separadas por tab o ;).
+   Con encabezados (asesor, tienda, nombre) usa esos; sin encabezados, la última columna es el nombre,
+   la anterior la tienda y la anterior el asesor. */
+const baseId = e => String(e.id).split('@')[0];   // los eventos recurrentes llevan "@fecha" en cada ocurrencia
+const normP = p => typeof p==='string' ? {nombre:p} : (p || {});
+function parseLista(txt){
+  const out = []; let mapa = null;
+  String(txt||'').split(/\r?\n/).map(l => l.split(/\t|;/).map(c => c.trim())).filter(r => r.some(Boolean)).forEach(r => {
+    const n = r.map(norm);
+    if(n.includes('nombre')){ mapa = {asesor:n.indexOf('asesor'), tienda:n.indexOf('tienda'), nombre:n.indexOf('nombre')}; return; }   // fila de encabezados
+    const k = r.length, m = mapa || {asesor:k-3, tienda:k-2, nombre:k-1};
+    const v = i => i>=0 ? (r[i]||'') : '';
+    if(!v(m.nombre)) return;
+    const p = {nombre:v(m.nombre)}; if(v(m.tienda)) p.tienda = v(m.tienda); if(v(m.asesor)) p.asesor = v(m.asesor);
+    out.push(p);
+  });
+  return out;
+}
+const listaATexto = l => 'asesor\ttienda\tnombre\n'+l.map(normP).map(p => [p.asesor||'', p.tienda||'', p.nombre||''].join('\t')).join('\n');
+/* Lector de Excel (SheetJS) se descarga solo cuando se sube un archivo */
+function cargarXLSX(){
+  return window.XLSX ? Promise.resolve() : new Promise((ok,ko) => { const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.onload = ok; s.onerror = () => ko(new Error('No se pudo cargar el lector de Excel. Pega las columnas en el cuadro.')); document.head.appendChild(s); });
+}
+async function archivoATexto(file){
+  await cargarXLSX();
+  const wb = XLSX.read(await file.arrayBuffer(), {type:'array'});
+  return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, raw:false, defval:''}).map(r => r.join('\t')).join('\n');
+}
+function actualizarCuenta(ta){
+  const c = document.querySelector('[data-cuenta="'+ta.id+'"]'), n = parseLista(ta.value).length;
+  if(c && ta.value.trim()) c.textContent = n ? '✓ '+n+(n===1?' persona detectada':' personas detectadas') : 'No se detectaron nombres. Revisa que copiaste las columnas asesor, tienda y nombre.';
+}
+document.addEventListener('change', async ev => {
+  const f = ev.target; if(!f.matches || !f.matches('input[type=file][data-destino]') || !f.files[0]) return;
+  const ta = $(f.dataset.destino);
+  try{ const t = await archivoATexto(f.files[0]); ta.value = (ta.value.trim() ? ta.value.replace(/\s+$/,'')+'\n' : '')+t; actualizarCuenta(ta); }
+  catch(err){ aviso(err.message || 'No se pudo leer el archivo.'); }
+  f.value = '';
+});
+document.addEventListener('input', ev => {
+  const t = ev.target;
+  if(t.matches && t.matches('.lista-ta')) actualizarCuenta(t);
+  if(t.matches && t.matches('[data-buscar]')){   // buscador dentro de la lista de participantes
+    const q = norm(t.value), d = t.closest('details');
+    d.querySelectorAll('li[data-q]').forEach(li => li.hidden = !!q && !li.dataset.q.includes(q));
+  }
+});
+
+async function ghGuardar(repo, token, ev){
+  return ghModificar(repo, token, j => { if(j.eventos.some(x => x.id===ev.id)) ev.id += '-'+Date.now().toString(36); j.eventos.push(ev); }, 'Agregar evento: '+ev.titulo);
+}
+/* Lee eventos.json de GitHub, aplica "mutar" y lo guarda (reintenta si alguien guardó al mismo tiempo) */
+async function ghModificar(repo, token, mutar, mensaje){
+  const url = 'https://api.github.com/repos/'+repo+'/contents/'+ARCHIVO;
+  const h = {'Authorization':'Bearer '+token, 'Accept':'application/vnd.github+json'};
+  for(let i=0; i<2; i++){
+    const r = await fetch(url, {headers:h, cache:'no-store'});
+    if(r.status===401 || r.status===403 || r.status===404) throw new Error('permiso');
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const f = await r.json(), j = JSON.parse(fromB64(f.content));
+    mutar(j); j.actualizado = iso(new Date());
+    const p = await fetch(url, {method:'PUT', headers:{...h,'Content-Type':'application/json'},
+      body:JSON.stringify({message:mensaje, content:toB64(serializar(j)), sha:f.sha})});
+    if(p.ok) return;
+    if(p.status===401 || p.status===403 || p.status===404) throw new Error('permiso');
+    if(p.status!==409 && p.status!==422) throw new Error('HTTP '+p.status);   // 409/422: alguien guardó antes; se reintenta
+  }
+  throw new Error('conflicto');
+}
+
+$('f-nuevo').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const e = leerFormulario();
+  if(e.hora_inicio && e.hora_fin && e.hora_fin <= e.hora_inicio) return msg('La hora de fin debe ser posterior a la de inicio.', 'err');
+  if(e.url && !/^https?:\/\//i.test(e.url)) return msg('El enlace debe empezar con https://', 'err');
+  if(e.recurrencia && (!validFecha(e.recurrencia.hasta) || e.recurrencia.hasta < e.recurrencia.desde)) { $('dn-masop').open = true; return msg('Indica una fecha válida en «Repetir hasta».', 'err'); }
+  const repo = $('n-repo').value.trim().replace(/^https?:\/\/github\.com\//i,'').replace(/\/+$/,''), token = $('n-token').value.trim();
+  if(!/^[\w.-]+\/[\w.-]+$/.test(repo) || !token){
+    $('dn-acceso').open = true;
+    return msg('Falta configurar el acceso (abajo): repositorio y token. Es solo la primera vez. También puedes copiar el evento.', 'err');
+  }
+  store.set('gh_repo', repo); store.set('gh_token', token); aplicarAdmin();
+  const ok = $('n-ok'); ok.disabled = true; ok.textContent = 'Publicando…'; msg('');
+  try{
+    await ghGuardar(repo, token, e);
+    const nuevos = expandir([e]);
+    eventos = eventos.concat(nuevos).sort(porHora); prepararCategorias();
+    const f = nuevos[0] && nuevos[0].fecha; if(f) cur = new Date(parse(f).getFullYear(), parse(f).getMonth(), 1);
+    $('dlg-nuevo').close(); ir('calendario'); render(true);
+    aviso('✓ Evento publicado. Para todos los demás aparecerá en aproximadamente 1 minuto.');
+  }catch(err){
+    console.error(err);
+    $('dn-acceso').open = true;
+    msg(err.message==='permiso' ? 'GitHub no aceptó el acceso. Revisa que el repositorio sea correcto y que el token tenga permiso «Contents: Read and write».'
+      : err.message==='conflicto' ? 'Otra persona guardó al mismo tiempo. Inténtalo de nuevo.'
+      : 'No se pudo publicar ('+esc(err.message)+'). Revisa tu conexión e inténtalo de nuevo.', 'err');
+  }finally{ ok.disabled = false; ok.textContent = 'Publicar evento'; }
+});
+$('n-copiar').onclick = async () => {
+  if(!$('f-nuevo').reportValidity()) return;
+  const txt = JSON.stringify(leerFormulario())+',';
+  try{ await navigator.clipboard.writeText(txt); msg('Evento copiado. Ábrelo en GitHub (enlace de abajo), pégalo dentro de la lista «eventos» y guarda con «Commit changes».', 'ok'); }
+  catch(_){ msg('No se pudo copiar automáticamente. Copia esto: <code>'+esc(txt)+'</code>', 'err'); }
+};
+$('n-guardar-acc').onclick = () => {
+  const repo = $('n-repo').value.trim().replace(/^https?:\/\/github\.com\//i,'').replace(/\/+$/,''), token = $('n-token').value.trim();
+  if(!/^[\w.-]+\/[\w.-]+$/.test(repo) || !token) return msg('Escribe el repositorio (usuario/nombre) y pega el token.', 'err');
+  store.set('gh_repo', repo); store.set('gh_token', token); aplicarAdmin(); msg('✓ Acceso guardado en este dispositivo.', 'ok');
+};
+
+/* Cargar o editar la lista de invitados de un evento que ya existe */
+function abrirLista(id){
+  const e = eventos.find(x => baseId(x)===id); if(!e) return;
+  $('f-lista').dataset.id = id; $('dl-msg').innerHTML = '';
+  $('dl-ev').textContent = e.titulo+(e.recurrencia ? ' (la lista aplica a todas las fechas de este evento recurrente)' : '');
+  $('l-txt').value = Array.isArray(e.participantes) && e.participantes.length ? listaATexto(e.participantes) : '';
+  $('dl-t').textContent = 'Lista de invitados'; actualizarCuenta($('l-txt'));
+  $('dlg-lista').showModal();
+}
+$('f-lista').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const id = $('f-lista').dataset.id, lista = parseLista($('l-txt').value), m = t => $('dl-msg').innerHTML = '<div class="msg err">'+t+'</div>';
+  if(!lista.length && $('l-txt').value.trim()) return m('No se detectaron nombres. Revisa las columnas.');
+  const repo = repoActual(), token = store.get('gh_token');
+  if(!repo || !token) return m('Falta el acceso. Ábrelo en «+ Agregar evento» → «Acceso para publicar» → «Guardar acceso».');
+  const ok = $('l-ok'); ok.disabled = true; ok.textContent = 'Guardando…';
+  try{
+    await ghModificar(repo, token, j => { const e = j.eventos.find(x => x.id===id); if(!e) throw new Error('noevento'); e.participantes = lista; }, 'Lista de invitados: '+id);
+    eventos.forEach(e => { if(baseId(e)===id) e.participantes = lista; });
+    $('dlg-lista').close(); renderDia();
+    aviso('✓ Lista guardada ('+lista.length+'). Para todos aparecerá en aproximadamente 1 minuto.');
+  }catch(err){
+    console.error(err);
+    m(err.message==='permiso' ? 'GitHub no aceptó el acceso. Revisa repositorio y token.' : err.message==='noevento' ? 'Ese evento aún no está en GitHub (espera a que se publique) o fue eliminado.' : err.message==='conflicto' ? 'Otra persona guardó al mismo tiempo. Inténtalo de nuevo.' : 'No se pudo guardar ('+esc(err.message)+').');
+  }finally{ ok.disabled = false; ok.textContent = 'Guardar lista'; }
+});
+$('n-quitar').onclick = () => { store.set('gh_token',''); store.set('admin',''); $('n-token').value = ''; $('dlg-nuevo').close(); aplicarAdmin(); render(); aviso('Modo editor desactivado en este dispositivo.'); };
+$('n-rep').onchange = () => { $('n-hasta-w').hidden = !$('n-rep').checked; };
+$('n-lugar').addEventListener('input', () => { if(/teams|en l[ií]nea|virtual/i.test($('n-lugar').value)) $('n-mod').value = 'virtual'; });
+
+/* ========== Ayuda ========== */
+function abrirAyuda(){ $('dlg-ayuda').showModal(); store.set('guia_vista','1'); }
+
+/* ========== Eventos de la interfaz ========== */
+document.addEventListener('click', ev => {
+  const t = ev.target;
+  if(t.matches('dialog')) return t.close();                        // clic fuera de la ventana
+  if(t.closest('[data-cerrar]')) return t.closest('dialog').close();
+  if(t.closest('[data-ayuda]')) return abrirAyuda();
+  const n = t.closest('[data-nuevo]'); if(n) return abrirNuevo(n.dataset.nuevo);
+  const li = t.closest('[data-lista]'); if(li) return abrirLista(li.dataset.lista);
+  if(t.closest('[data-volver]')) return history.length>1 ? history.back() : ir('calendario');
+  const d = t.closest('[data-dia]'); if(d) ir('dia/'+d.dataset.dia);
+});
+document.addEventListener('keydown', ev => {
+  if((ev.key==='Enter'||ev.key===' ') && ev.target.matches('.day.con')){ ev.preventDefault(); ir('dia/'+ev.target.dataset.dia); }
+});
+$('prev').onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth()-1, 1); render(); };
+$('next').onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1); render(); };
+$('hoy').onclick  = () => { cur = new Date(hoy.getFullYear(), hoy.getMonth(), 1); render(); };
+['f-q','f-cat','f-mod'].forEach(id => $(id).addEventListener('input', () => render()));
+
+ruta = leerRuta();
+if(ruta.v==='dia') cur = new Date(parse(ruta.dia).getFullYear(), parse(ruta.dia).getMonth(), 1);
+cargar();
+cargarUbicaciones();
+aplicarAdmin();
+render();
+if(!store.get('guia_vista')) setTimeout(abrirAyuda, 600);   // primera visita: guía rápida
+</script>
+</body>
+</html>
